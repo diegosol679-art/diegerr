@@ -3,872 +3,877 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VOID</title>
+    <title>ILLIA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=SF+Pro+Display:wght@400;500;600&amp;display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Playfair+Display:wght@700&amp;display=swap');
+        
         :root {
-            --font-sans: 'Inter', system_ui, sans-serif;
+            --glass: rgba(0, 0, 0, 0.65);
         }
-        body {
-            font-family: var(--font-sans);
-        }
+        
         .glass {
-            background: rgba(0, 0, 0, 0.65);
+            background: var(--glass);
             backdrop-filter: blur(40px);
             -webkit-backdrop-filter: blur(40px);
         }
-        .chat-scroll::-webkit-scrollbar {
-            width: 4px;
+        
+        .nav-glass {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(40px);
         }
-        .chat-scroll::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.2);
-            border-radius: 20px;
+        
+        .card {
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
         }
-        .message-ai {
-            animation: fadeIn 0.3s ease forwards;
+        
+        .card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.4);
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        
+        .landing {
+            transition: all 1.2s cubic-bezier(0.23, 1, 0.32, 1);
         }
-        .scanlines {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(
-                to bottom,
-                transparent 0px,
-                transparent 2px,
-                rgba(255,255,255,0.025) 2px,
-                rgba(255,255,255,0.025) 4px
-            );
-            pointer-events: none;
-            z-index: 9999;
-            mix-blend-mode: overlay;
+        
+        .star {
+            transition: all 0.2s ease;
         }
-        .header-glow {
-            box-shadow: 0 0 30px -10px rgba(255,255,255,0.3);
+        
+        .modal {
+            animation: modalPop 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        
+        @keyframes modalPop {
+            from { opacity: 0; transform: scale(0.8) translateY(40px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        
+        .review-gif {
+            max-height: 240px;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .bottom-nav {
+            box-shadow: 0 -10px 30px -15px rgba(255,255,255,0.1);
         }
     </style>
 </head>
-<body class="bg-black text-white overflow-hidden h-screen flex flex-col">
-    <!-- HEADER -->
-    <header class="h-16 glass border-b border-white/10 flex items-center px-6 z-50 header-glow">
-        <div class="flex items-center gap-x-4 flex-1">
-            <button onclick="toggleLeftSidebar()" 
-                    class="w-9 h-9 flex items-center justify-center text-2xl hover:bg-white/10 rounded-2xl transition-colors lg:hidden">
-                <i class="fa-solid fa-bars"></i>
-            </button>
-            <div class="flex items-center gap-x-3">
-                <div class="w-8 h-8 bg-white rounded-2xl flex items-center justify-center text-black font-bold text-2xl leading-none pt-0.5">V</div>
-                <h1 class="text-4xl font-semibold tracking-tighter">VOID</h1>
-            </div>
-        </div>
-        
-        <div class="flex items-center gap-x-6">
-            <!-- status -->
-            <div id="api-status" 
-                 class="px-5 py-1.5 bg-white/10 text-xs font-mono tracking-widest border border-white/30 rounded-3xl flex items-center gap-x-2">
-                <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                API STATUS: <span class="text-emerald-400 font-medium">CONNECTED</span>
+<body class="bg-black text-white overflow-hidden">
+    <!-- LANDING -->
+    <div id="landing" class="landing fixed inset-0 z-50 flex items-center justify-center bg-black">
+        <div class="text-center">
+            <div class="mb-12">
+                <h1 id="logo" 
+                    class="text-[120px] leading-none font-black tracking-[-0.08em] text-white"
+                    style="font-family: 'Playfair Display', serif; text-shadow: 0 0 80px rgba(255,255,255,0.3);">
+                    ILLIA
+                </h1>
+                <p class="text-white/40 text-sm tracking-[4px] font-mono mt-2">PERSONAL CINEMA</p>
             </div>
             
-            <button onclick="newChat()" 
-                    class="flex items-center gap-x-2 px-6 h-10 bg-white text-black rounded-3xl font-medium text-sm hover:bg-white/90 transition-all active:scale-95">
-                <i class="fa-solid fa-plus"></i>
-                <span>NEW VOID</span>
+            <button onclick="enterApp()" 
+                    id="enter-btn"
+                    class="glass group relative px-16 py-6 rounded-3xl border border-white/30 text-2xl font-semibold tracking-widest hover:border-white/60 transition-all flex items-center gap-4 mx-auto overflow-hidden">
+                <span class="relative z-10">ENTER THE VOID</span>
+                <i class="fa-solid fa-arrow-right text-3xl group-active:rotate-45 transition-transform"></i>
+                <div class="absolute inset-0 bg-white/10 scale-x-0 group-hover:scale-x-100 origin-left transition-transform"></div>
             </button>
             
-            <button onclick="showHistoryModal()" 
-                    class="w-10 h-10 flex items-center justify-center text-xl hover:bg-white/10 rounded-3xl transition-colors">
-                <i class="fa-solid fa-clock-rotate-left"></i>
-            </button>
-            
-            <button onclick="toggleRightSidebar()" 
-                    class="w-10 h-10 flex items-center justify-center text-xl hover:bg-white/10 rounded-3xl transition-colors lg:hidden">
-                <i class="fa-solid fa-sliders"></i>
-            </button>
+            <div class="mt-24 text-white/20 text-xs font-mono tracking-widest">v4.20 • BUILT FOR DIEGO</div>
         </div>
-    </header>
+    </div>
 
-    <div class="flex flex-1 overflow-hidden">
-        <!-- LEFT SIDEBAR -->
-        <div id="left-sidebar" 
-             class="w-80 bg-black/80 border-r border-white/10 flex flex-col h-full transition-all duration-300 lg:translate-x-0 fixed lg:static z-40 -translate-x-full">
+    <!-- MAIN APP -->
+    <div id="main-app" class="hidden min-h-screen flex flex-col">
+        <!-- HEADER -->
+        <div class="glass border-b border-white/10 px-6 py-4 flex items-center justify-between fixed top-0 left-0 right-0 z-40">
+            <div class="flex items-center gap-3">
+                <div onclick="switchTab(0)" class="cursor-pointer">
+                    <span class="text-2xl font-black tracking-tighter">ILLIA</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-6 text-white/60">
+                <i onclick="logout()" class="fa-solid fa-right-from-bracket cursor-pointer hover:text-white transition-colors"></i>
+            </div>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="flex-1 pt-20 pb-24 overflow-y-auto" id="content-area">
             
-            <!-- API KEY -->
-            <div class="p-6 border-b border-white/10">
-                <div class="text-xs uppercase tracking-widest text-white/60 mb-3">API CONFIG</div>
-                <div class="space-y-5">
-                    <div>
-                        <div class="flex justify-between text-xs mb-1.5">
-                            <span class="text-white/70">BASE URL</span>
-                        </div>
-                        <input id="base-url" 
+            <!-- HOME TAB -->
+            <div id="tab-0" class="tab-content active px-6 pt-6">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-semibold mb-1">Recent Reviews</h2>
+                    <p class="text-white/40 text-sm">From the void</p>
+                </div>
+                
+                <div id="recent-reviews" class="space-y-8"></div>
+                
+                <div class="my-12">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-3xl font-semibold">Recent Movies</h2>
+                        <button onclick="switchTab(1)" 
+                                class="text-xs px-5 py-2 border border-white/30 rounded-2xl hover:bg-white/10 transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-list"></i>
+                            <span>WATCHLIST</span>
+                        </button>
+                    </div>
+                    <div id="recent-movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"></div>
+                </div>
+            </div>
+
+            <!-- WATCHLIST TAB -->
+            <div id="tab-1" class="tab-content px-6 pt-6">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-3xl font-semibold">Watchlist</h2>
+                    <div class="text-white/40 text-sm" id="watchlist-count">0 films</div>
+                </div>
+                <div id="watchlist-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"></div>
+                <div id="empty-watchlist" class="hidden text-center py-20">
+                    <i class="fa-solid fa-film text-6xl text-white/10 mb-6"></i>
+                    <p class="text-white/30">Your watchlist is empty.<br>Start adding films.</p>
+                </div>
+            </div>
+
+            <!-- NEW POST TAB -->
+            <div id="tab-2" class="tab-content px-6 pt-6">
+                <h2 class="text-3xl font-semibold mb-8">New Log</h2>
+                
+                <div class="glass border border-white/20 rounded-3xl p-6">
+                    <!-- MOVIE SELECT -->
+                    <div class="relative mb-6">
+                        <input id="movie-search" 
+                               onkeyup="filterMovies(this)"
                                type="text" 
-                               value="https://api.openai.com/v1"
-                               oninput="saveSettings()"
-                               class="w-full bg-black/50 border border-white/30 focus:border-white/70 rounded-3xl px-5 py-3 text-sm font-mono outline-none transition-colors">
+                               placeholder="Search film..." 
+                               class="w-full bg-transparent border border-white/30 focus:border-white/60 rounded-2xl px-6 py-5 text-lg outline-none">
+                        <div id="movie-dropdown" 
+                             class="hidden absolute z-50 w-full mt-2 glass border border-white/20 rounded-3xl py-3 max-h-80 overflow-auto"></div>
                     </div>
                     
-                    <div>
-                        <div class="flex justify-between text-xs mb-1.5">
-                            <span class="text-white/70">API KEY</span>
-                            <span onclick="toggleKeyVisibility()" id="key-toggle" class="cursor-pointer text-white/50 hover:text-white text-xs">SHOW</span>
+                    <!-- SELECTED MOVIE -->
+                    <div id="selected-movie" class="hidden flex items-center gap-4 bg-black/40 rounded-2xl p-4 mb-6 border border-white/10">
+                        <img id="selected-poster" class="w-16 h-24 object-cover rounded-xl" alt="">
+                        <div>
+                            <div id="selected-title" class="font-semibold"></div>
+                            <div id="selected-year" class="text-xs text-white/40"></div>
                         </div>
-                        <div class="relative">
-                            <input id="api-key" 
-                                   type="password"
-                                   placeholder="sk-..."
-                                   oninput="saveSettings()"
-                                   class="w-full bg-black/50 border border-white/30 focus:border-white/70 rounded-3xl px-5 py-3 text-sm font-mono outline-none transition-colors">
-                            <button onclick="testConnection()" 
-                                    class="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1 text-xs bg-white/10 hover:bg-white/20 rounded-3xl">
-                                TEST
-                            </button>
+                        <button onclick="clearSelectedMovie()" 
+                                class="ml-auto text-white/40 hover:text-red-400">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- RATING -->
+                    <div class="mb-8">
+                        <div class="text-sm text-white/40 mb-3">YOUR RATING</div>
+                        <div id="star-rating" class="flex gap-3 text-5xl">
+                            <span onclick="setRating(1)" class="star cursor-pointer text-white/30 hover:text-yellow-400">★</span>
+                            <span onclick="setRating(2)" class="star cursor-pointer text-white/30 hover:text-yellow-400">★</span>
+                            <span onclick="setRating(3)" class="star cursor-pointer text-white/30 hover:text-yellow-400">★</span>
+                            <span onclick="setRating(4)" class="star cursor-pointer text-white/30 hover:text-yellow-400">★</span>
+                            <span onclick="setRating(5)" class="star cursor-pointer text-white/30 hover:text-yellow-400">★</span>
                         </div>
                     </div>
                     
-                    <div>
-                        <div class="text-xs text-white/70 mb-1.5">MODEL</div>
-                        <select id="model-select" 
-                                onchange="saveSettings()"
-                                class="w-full bg-black/50 border border-white/30 focus:border-white/70 rounded-3xl px-5 py-3 text-sm outline-none">
-                            <option value="gpt-4o">gpt-4o</option>
-                            <option value="gpt-4o-mini">gpt-4o-mini</option>
-                            <option value="llama-3.1-405b">llama-3.1-405b (Groq)</option>
-                            <option value="mixtral-8x22b">mixtral-8x22b</option>
-                            <option value="claude-3-5-sonnet-20240620">claude-3.5-sonnet (via proxy)</option>
-                            <option value="grok-beta">grok-beta</option>
-                            <option value="gemini-1.5-pro">gemini-1.5-pro (via proxy)</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- PARAMETERS -->
-            <div class="flex-1 p-6 overflow-auto space-y-8">
-                <div>
-                    <div class="flex justify-between items-center text-xs mb-4">
-                        <span class="uppercase tracking-widest text-white/60">TEMPERATURE</span>
-                        <span id="temp-value" class="font-mono text-lg font-medium">0.7</span>
-                    </div>
-                    <input type="range" id="temp-slider" min="0" max="2" step="0.1" value="0.7" 
-                           oninput="updateSliderValue(this, 'temp-value'); saveSettings()" 
-                           class="w-full accent-white">
-                </div>
-                
-                <div>
-                    <div class="flex justify-between items-center text-xs mb-4">
-                        <span class="uppercase tracking-widest text-white/60">MAX TOKENS</span>
-                        <span id="maxtokens-value" class="font-mono text-lg font-medium">4096</span>
-                    </div>
-                    <input type="range" id="maxtokens-slider" min="256" max="128000" step="256" value="4096" 
-                           oninput="updateSliderValue(this, 'maxtokens-value'); saveSettings()" 
-                           class="w-full accent-white">
-                </div>
-                
-                <div>
-                    <div class="flex justify-between items-center text-xs mb-4">
-                        <span class="uppercase tracking-widest text-white/60">TOP P</span>
-                        <span id="topp-value" class="font-mono text-lg font-medium">0.95</span>
-                    </div>
-                    <input type="range" id="topp-slider" min="0" max="1" step="0.05" value="0.95" 
-                           oninput="updateSliderValue(this, 'topp-value'); saveSettings()" 
-                           class="w-full accent-white">
-                </div>
-                
-                <div class="grid grid-cols-2 gap-6">
-                    <div>
-                        <div class="text-xs uppercase tracking-widest text-white/60 mb-4">PRESENCE</div>
-                        <input type="range" id="presence-slider" min="-2" max="2" step="0.1" value="0" 
-                               oninput="updateSliderValue(this, 'presence-value'); saveSettings()" 
-                               class="w-full accent-white">
-                        <div id="presence-value" class="text-center font-mono text-sm mt-1">0.0</div>
-                    </div>
-                    <div>
-                        <div class="text-xs uppercase tracking-widest text-white/60 mb-4">FREQUENCY</div>
-                        <input type="range" id="frequency-slider" min="-2" max="2" step="0.1" value="0" 
-                               oninput="updateSliderValue(this, 'frequency-value'); saveSettings()" 
-                               class="w-full accent-white">
-                        <div id="frequency-value" class="text-center font-mono text-sm mt-1">0.0</div>
-                    </div>
-                </div>
-                
-                <!-- SYSTEM PROMPT -->
-                <div class="pt-6 border-t border-white/10">
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="uppercase text-xs tracking-widest text-white/60">SYSTEM PROMPT</span>
-                        <span id="char-count" class="text-xs font-mono text-white/40">0 / 4000</span>
-                    </div>
-                    <textarea id="system-prompt" 
-                              oninput="updateCharCount(); saveSettings()" 
+                    <!-- REVIEW TEXT -->
+                    <textarea id="review-text" 
                               rows="6"
-                              class="w-full bg-black/40 border border-white/20 focus:border-white/60 rounded-3xl p-5 text-sm resize-y min-h-[140px] outline-none"
-                              placeholder="You are VOID. Cold. Precise. No mercy."></textarea>
+                              placeholder="What did you think?"
+                              class="w-full bg-transparent border border-white/20 focus:border-white/50 rounded-3xl p-6 outline-none resize-none text-lg"></textarea>
                     
-                    <div class="flex gap-2 mt-4">
-                        <button onclick="savePreset(1)" 
-                                class="flex-1 h-9 text-xs border border-white/30 hover:border-white/70 rounded-3xl">PRESET 1</button>
-                        <button onclick="savePreset(2)" 
-                                class="flex-1 h-9 text-xs border border-white/30 hover:border-white/70 rounded-3xl">PRESET 2</button>
-                        <button onclick="savePreset(3)" 
-                                class="flex-1 h-9 text-xs border border-white/30 hover:border-white/70 rounded-3xl">PRESET 3</button>
-                        <button onclick="savePreset(4)" 
-                                class="flex-1 h-9 text-xs border border-white/30 hover:border-white/70 rounded-3xl">PRESET 4</button>
-                        <button onclick="savePreset(5)" 
-                                class="flex-1 h-9 text-xs border border-white/30 hover:border-white/70 rounded-3xl">PRESET 5</button>
+                    <!-- GIF UPLOAD -->
+                    <div class="mt-6">
+                        <div id="gif-dropzone"
+                             class="border border-dashed border-white/30 hover:border-white/60 rounded-3xl p-8 text-center transition-all cursor-pointer"
+                             ondragover="handleDragOver(event)"
+                             ondragleave="handleDragLeave(event)"
+                             ondrop="handleDrop(event)">
+                            <i class="fa-solid fa-cloud-arrow-up text-4xl mb-3 text-white/40"></i>
+                            <p class="text-sm text-white/50">Drop GIF or click to upload</p>
+                            <input type="file" id="gif-input" accept="image/gif" class="hidden" onchange="handleFileSelect(event)">
+                        </div>
+                        <div id="gif-preview" class="hidden mt-4 rounded-2xl overflow-hidden border border-white/10">
+                            <img id="preview-gif" class="w-full max-h-60 object-contain" alt="GIF preview">
+                            <button onclick="removeGif()" 
+                                    class="absolute top-3 right-3 bg-black/70 text-white text-xs px-3 py-1 rounded-xl">
+                                REMOVE
+                            </button>
+                        </div>
                     </div>
+                    
+                    <button onclick="submitReview()" 
+                            class="mt-8 w-full bg-white text-black font-semibold py-6 rounded-3xl text-lg tracking-widest hover:bg-white/90 transition-colors flex items-center justify-center gap-3">
+                        <span>LOG TO THE VOID</span>
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
                 </div>
             </div>
-            
-            <!-- BOTTOM LEFT -->
-            <div class="p-6 border-t border-white/10 text-xs flex items-center justify-between bg-black/90">
-                <button onclick="clearAllData()" 
-                        class="text-red-400 hover:text-red-300 flex items-center gap-x-2">
-                    <i class="fa-solid fa-trash"></i>
-                    <span>NUKE ALL</span>
+
+            <!-- PROFILE TAB -->
+            <div id="tab-3" class="tab-content px-6 pt-6">
+                <!-- BANNER -->
+                <div id="profile-banner" 
+                     onclick="triggerBannerUpload()"
+                     class="h-52 rounded-3xl overflow-hidden relative cursor-pointer border border-white/10 bg-cover bg-center"
+                     style="background-image: url('https://picsum.photos/id/1015/1200/400')">
+                    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-black/30 to-black/80"></div>
+                    <div class="absolute bottom-6 left-6 flex items-center gap-4">
+                        <!-- AVATAR -->
+                        <div onclick="event.stopImmediatePropagation(); triggerAvatarUpload()" 
+                             id="profile-avatar-container"
+                             class="w-24 h-24 rounded-3xl border-4 border-black overflow-hidden cursor-pointer shadow-2xl">
+                            <img id="profile-avatar" 
+                                 src="https://picsum.photos/id/64/300/300" 
+                                 class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <div class="text-3xl font-semibold" id="profile-name">DIEGO</div>
+                            <div class="text-xs text-white/40 font-mono">MEMBER SINCE 2024</div>
+                        </div>
+                    </div>
+                    <div class="absolute top-6 right-6 bg-black/60 text-xs px-4 py-2 rounded-2xl flex items-center gap-2">
+                        <i class="fa-solid fa-camera"></i>
+                        <span>EDIT BANNER</span>
+                    </div>
+                </div>
+                
+                <div class="mt-8 grid grid-cols-3 gap-4 text-center">
+                    <div class="glass rounded-3xl p-6">
+                        <div class="text-4xl font-semibold" id="stat-films">47</div>
+                        <div class="text-xs text-white/40 tracking-widest">FILMS</div>
+                    </div>
+                    <div class="glass rounded-3xl p-6">
+                        <div class="text-4xl font-semibold" id="stat-reviews">19</div>
+                        <div class="text-xs text-white/40 tracking-widest">REVIEWS</div>
+                    </div>
+                    <div class="glass rounded-3xl p-6">
+                        <div class="text-4xl font-semibold text-yellow-400" id="stat-avg">4.6</div>
+                        <div class="text-xs text-white/40 tracking-widest">AVG</div>
+                    </div>
+                </div>
+                
+                <!-- TOP 4 -->
+                <div class="mt-12">
+                    <div class="flex justify-between items-baseline mb-6">
+                        <h3 class="text-2xl font-semibold">Top 4</h3>
+                        <span onclick="randomizeTop4()" class="text-xs text-white/40 cursor-pointer hover:text-white">RANDOMIZE</span>
+                    </div>
+                    <div id="top-four" class="grid grid-cols-2 gap-4"></div>
+                </div>
+                
+                <!-- RECENT ACTIVITY -->
+                <div class="mt-16">
+                    <h3 class="text-xl font-medium mb-6">Activity</h3>
+                    <div id="profile-activity" class="space-y-6"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTTOM NAV -->
+        <div class="bottom-nav fixed bottom-0 left-0 right-0 glass border-t border-white/10 z-50">
+            <div class="flex justify-around items-center py-2 max-w-md mx-auto">
+                <button onclick="switchTab(0)" 
+                        class="tab-btn active flex flex-col items-center py-3 px-5 text-white/60 hover:text-white transition-colors">
+                    <i class="fa-solid fa-house text-2xl"></i>
+                    <span class="text-[10px] font-mono mt-1">HOME</span>
                 </button>
-                <div onclick="toggleLeftSidebar()" 
-                     class="lg:hidden cursor-pointer text-white/50 hover:text-white">
-                    <i class="fa-solid fa-xmark text-2xl"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- MAIN CHAT AREA -->
-        <div class="flex-1 flex flex-col min-w-0">
-            <!-- CHAT MESSAGES -->
-            <div id="chat-window" 
-                 class="flex-1 overflow-y-auto chat-scroll p-8 space-y-10 bg-[radial-gradient(#111_1px,transparent_1px)] bg-[length:40px_40px]">
-            </div>
-            
-            <!-- INPUT BAR -->
-            <div class="glass border-t border-white/10 p-6">
-                <div class="max-w-4xl mx-auto">
-                    <div class="relative">
-                        <textarea id="user-input" 
-                                  rows="1"
-                                  onkeydown="if(event.key==='Enter' &amp;&amp; !event.shiftKey){event.preventDefault(); sendMessage()}"
-                                  class="w-full bg-black/70 border border-white/30 focus:border-white rounded-3xl py-5 px-7 pr-20 text-lg resize-none outline-none max-h-[180px] overflow-y-auto"
-                                  placeholder="Enter the void..."></textarea>
-                        
-                        <div class="absolute right-4 bottom-4 flex items-center gap-x-2">
-                            <button onclick="fakeAttach()" 
-                                    class="w-9 h-9 flex items-center justify-center text-white/60 hover:text-white transition-colors">
-                                <i class="fa-solid fa-paperclip"></i>
-                            </button>
-                            <button onclick="sendMessage()" 
-                                    class="w-11 h-11 bg-white text-black rounded-3xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all">
-                                <i class="fa-solid fa-paper-plane"></i>
-                            </button>
-                        </div>
+                <button onclick="switchTab(1)" 
+                        class="tab-btn flex flex-col items-center py-3 px-5 text-white/60 hover:text-white transition-colors">
+                    <i class="fa-solid fa-bookmark text-2xl"></i>
+                    <span class="text-[10px] font-mono mt-1">LIST</span>
+                </button>
+                <button onclick="switchTab(2)" 
+                        class="tab-btn flex flex-col items-center py-3 px-5 text-white/60 hover:text-white transition-colors -mt-8">
+                    <div class="w-16 h-16 glass border border-white/40 rounded-3xl flex items-center justify-center shadow-2xl">
+                        <i class="fa-solid fa-plus text-4xl"></i>
                     </div>
-                    
-                    <div class="flex justify-between text-[10px] text-white/40 mt-3 px-2 font-mono">
-                        <div>TOKEN EST: <span id="token-count">0</span></div>
-                        <div class="flex gap-x-4">
-                            <span onclick="regenerateLast()" class="cursor-pointer hover:text-white">REGEN</span>
-                            <span onclick="forkChat()" class="cursor-pointer hover:text-white">FORK</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- RIGHT SIDEBAR -->
-        <div id="right-sidebar" 
-             class="w-80 bg-black/80 border-l border-white/10 flex flex-col h-full transition-all duration-300 lg:translate-x-0 fixed lg:static z-40 translate-x-full">
-            
-            <div class="p-6 border-b border-white/10">
-                <div class="flex items-center justify-between">
-                    <div class="text-xl font-medium tracking-tighter">TUNE AI</div>
-                    <div onclick="toggleRightSidebar()" 
-                         class="lg:hidden text-3xl cursor-pointer">×</div>
-                </div>
-                <div class="text-xs text-white/50 mt-1">Real-time personality injection</div>
-            </div>
-            
-            <div class="flex-1 p-6 space-y-8 overflow-auto">
-                <div>
-                    <div class="flex justify-between text-xs mb-3">
-                        <span>AGGRESSION</span>
-                        <span id="agg-val" class="font-mono">7</span>
-                    </div>
-                    <input type="range" min="0" max="10" value="7" id="agg-slider"
-                           oninput="updateTune(this); saveSettings()" class="w-full accent-white">
-                </div>
-                <div>
-                    <div class="flex justify-between text-xs mb-3">
-                        <span>SARCASM</span>
-                        <span id="sarc-val" class="font-mono">8</span>
-                    </div>
-                    <input type="range" min="0" max="10" value="8" id="sarc-slider"
-                           oninput="updateTune(this); saveSettings()" class="w-full accent-white">
-                </div>
-                <div>
-                    <div class="flex justify-between text-xs mb-3">
-                        <span>CREATIVITY</span>
-                        <span id="creat-val" class="font-mono">6</span>
-                    </div>
-                    <input type="range" min="0" max="10" value="6" id="creat-slider"
-                           oninput="updateTune(this); saveSettings()" class="w-full accent-white">
-                </div>
-                <div>
-                    <div class="flex justify-between text-xs mb-3">
-                        <span>CONCISENESS</span>
-                        <span id="conc-val" class="font-mono">9</span>
-                    </div>
-                    <input type="range" min="0" max="10" value="9" id="conc-slider"
-                           oninput="updateTune(this); saveSettings()" class="w-full accent-white">
-                </div>
-                <div>
-                    <div class="flex justify-between text-xs mb-3">
-                        <span>PROFANITY</span>
-                        <span id="prof-val" class="font-mono">10</span>
-                    </div>
-                    <input type="range" min="0" max="10" value="10" id="prof-slider"
-                           oninput="updateTune(this); saveSettings()" class="w-full accent-white">
-                </div>
-            </div>
-            
-            <div class="p-6 border-t border-white/10 text-[10px] text-white/40 font-mono">
-                TUNING LIVE • INJECTED INTO SYSTEM PROMPT
+                </button>
+                <button onclick="switchTab(3)" 
+                        class="tab-btn flex flex-col items-center py-3 px-5 text-white/60 hover:text-white transition-colors">
+                    <i class="fa-solid fa-user text-2xl"></i>
+                    <span class="text-[10px] font-mono mt-1">ME</span>
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- HISTORY MODAL -->
-    <div id="history-modal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-50">
-        <div class="glass w-full max-w-lg mx-4 rounded-3xl overflow-hidden border border-white/20">
-            <div class="p-6 border-b border-white/10 flex justify-between items-center">
-                <div class="text-2xl font-semibold">HISTORY</div>
-                <button onclick="hideHistoryModal()" class="text-4xl leading-none text-white/60 hover:text-white">×</button>
+    <!-- REVIEW MODAL -->
+    <div id="review-modal" class="hidden fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/80">
+        <div class="modal glass border border-white/20 w-full max-w-xl max-h-[90vh] overflow-hidden rounded-t-3xl sm:rounded-3xl">
+            <div class="p-6 border-b border-white/10 flex items-center">
+                <button onclick="closeModal()" class="text-3xl text-white/40">←</button>
+                <div class="flex-1 text-center font-semibold text-lg">LOG</div>
+                <button onclick="closeModal()" class="text-white/40">✕</button>
             </div>
-            <div id="history-list" class="max-h-[70vh] overflow-auto p-3"></div>
+            
+            <div class="p-6 overflow-auto" style="max-height: calc(90vh - 70px)">
+                <div id="modal-poster" class="w-20 h-28 mx-auto rounded-2xl overflow-hidden mb-6"></div>
+                <div id="modal-title" class="text-3xl font-semibold text-center mb-1"></div>
+                <div id="modal-rating" class="flex justify-center text-4xl text-yellow-400 mb-8"></div>
+                
+                <div id="modal-text" class="prose prose-invert max-w-none text-lg leading-relaxed"></div>
+                
+                <div id="modal-gif-container" class="mt-8"></div>
+            </div>
         </div>
     </div>
-
-    <!-- SCANLINES -->
-    <div class="scanlines"></div>
 
     <script>
-        // Tailwind script already loaded
-        let apiKey = localStorage.getItem('void_api_key') || ''
-        let baseUrl = localStorage.getItem('void_base_url') || 'https://api.openai.com/v1'
-        let currentModel = localStorage.getItem('void_model') || 'gpt-4o'
-        let temperature = parseFloat(localStorage.getItem('void_temp')) || 0.7
-        let maxTokens = parseInt(localStorage.getItem('void_maxtokens')) || 4096
-        let topP = parseFloat(localStorage.getItem('void_topp')) || 0.95
-        let presencePenalty = parseFloat(localStorage.getItem('void_presence')) || 0
-        let frequencyPenalty = parseFloat(localStorage.getItem('void_frequency')) || 0
-        
-        let tune = {
-            aggression: parseInt(localStorage.getItem('void_tune_agg')) || 7,
-            sarcasm: parseInt(localStorage.getItem('void_tune_sarc')) || 8,
-            creativity: parseInt(localStorage.getItem('void_tune_creat')) || 6,
-            conciseness: parseInt(localStorage.getItem('void_tune_conc')) || 9,
-            profanity: parseInt(localStorage.getItem('void_tune_prof')) || 10
+        // Tailwind script already loaded via CDN
+        function initTailwind() {
+            // Nothing - using CDN classes
         }
         
-        let systemPromptBase = localStorage.getItem('void_system') || 'You are VOID. A merciless, hyper-intelligent AI with zero tolerance for stupidity. Answer with brutal honesty, razor wit, and maximum efficiency.'
-        let chats = JSON.parse(localStorage.getItem('void_chats')) || []
-        let currentChatId = localStorage.getItem('void_current_chat') || null
+        // DATA
+        let reviews = []
+        let watchlist = []
+        let profile = {
+            name: "DIEGO",
+            avatar: "https://picsum.photos/id/64/300/300",
+            banner: "https://picsum.photos/id/1015/1200/400",
+            top4: [
+                {id:1, title:"Dune: Part Two", poster:"https://picsum.photos/id/1015/300/400"},
+                {id:2, title:"Challengers", poster:"https://picsum.photos/id/201/300/400"},
+                {id:3, title:"Furiosa", poster:"https://picsum.photos/id/133/300/400"},
+                {id:4, title:"The Substance", poster:"https://picsum.photos/id/251/300/400"}
+            ]
+        }
         
-        let isKeyVisible = false
+        const popularMovies = [
+            {id:1, title:"Dune: Part Two", year:2024, poster:"https://picsum.photos/id/1015/300/400"},
+            {id:2, title:"Challengers", year:2024, poster:"https://picsum.photos/id/201/300/400"},
+            {id:3, title:"Furiosa: A Mad Max Saga", year:2024, poster:"https://picsum.photos/id/133/300/400"},
+            {id:4, title:"The Substance", year:2024, poster:"https://picsum.photos/id/251/300/400"},
+            {id:5, title:"Civil War", year:2024, poster:"https://picsum.photos/id/180/300/400"},
+            {id:6, title:"Kingdom of the Planet of the Apes", year:2024, poster:"https://picsum.photos/id/201/300/400"},
+            {id:7, title:"Hit Man", year:2024, poster:"https://picsum.photos/id/133/300/400"},
+            {id:8, title:"Longlegs", year:2024, poster:"https://picsum.photos/id/1015/300/400"}
+        ]
         
-        function saveSettings() {
-            localStorage.setItem('void_api_key', document.getElementById('api-key').value.trim())
-            localStorage.setItem('void_base_url', document.getElementById('base-url').value.trim())
-            localStorage.setItem('void_model', document.getElementById('model-select').value)
-            localStorage.setItem('void_temp', document.getElementById('temp-slider').value)
-            localStorage.setItem('void_maxtokens', document.getElementById('maxtokens-slider').value)
-            localStorage.setItem('void_topp', document.getElementById('topp-slider').value)
-            localStorage.setItem('void_presence', document.getElementById('presence-slider').value)
-            localStorage.setItem('void_frequency', document.getElementById('frequency-slider').value)
-            localStorage.setItem('void_system', document.getElementById('system-prompt').value.trim())
+        let selectedMovie = null
+        let currentRating = 0
+        let currentGifBase64 = null
+        let currentTab = 0
+        
+        // Save to localStorage
+        function saveData() {
+            localStorage.setItem('illia_reviews', JSON.stringify(reviews))
+            localStorage.setItem('illia_watchlist', JSON.stringify(watchlist))
+            localStorage.setItem('illia_profile', JSON.stringify(profile))
+        }
+        
+        // Load from localStorage
+        function loadData() {
+            const savedReviews = localStorage.getItem('illia_reviews')
+            if (savedReviews) reviews = JSON.parse(savedReviews)
             
-            apiKey = document.getElementById('api-key').value.trim()
-            baseUrl = document.getElementById('base-url').value.trim()
-            currentModel = document.getElementById('model-select').value
-            temperature = parseFloat(document.getElementById('temp-slider').value)
-            maxTokens = parseInt(document.getElementById('maxtokens-slider').value)
-            topP = parseFloat(document.getElementById('topp-slider').value)
-            presencePenalty = parseFloat(document.getElementById('presence-slider').value)
-            frequencyPenalty = parseFloat(document.getElementById('frequency-slider').value)
-            systemPromptBase = document.getElementById('system-prompt').value.trim()
-        }
-        
-        function loadSettings() {
-            document.getElementById('api-key').value = apiKey
-            document.getElementById('base-url').value = baseUrl
-            document.getElementById('model-select').value = currentModel
-            document.getElementById('temp-slider').value = temperature
-            document.getElementById('maxtokens-slider').value = maxTokens
-            document.getElementById('topp-slider').value = topP
-            document.getElementById('presence-slider').value = presencePenalty
-            document.getElementById('frequency-slider').value = frequencyPenalty
-            document.getElementById('system-prompt').value = systemPromptBase
+            const savedWatchlist = localStorage.getItem('illia_watchlist')
+            if (savedWatchlist) watchlist = JSON.parse(savedWatchlist)
             
-            document.getElementById('temp-value').textContent = temperature.toFixed(1)
-            document.getElementById('maxtokens-value').textContent = maxTokens
-            document.getElementById('topp-value').textContent = topP.toFixed(2)
-            document.getElementById('presence-value').textContent = presencePenalty.toFixed(1)
-            document.getElementById('frequency-value').textContent = frequencyPenalty.toFixed(1)
+            const savedProfile = localStorage.getItem('illia_profile')
+            if (savedProfile) profile = JSON.parse(savedProfile)
             
-            // tune sliders
-            document.getElementById('agg-slider').value = tune.aggression
-            document.getElementById('sarc-slider').value = tune.sarcasm
-            document.getElementById('creat-slider').value = tune.creativity
-            document.getElementById('conc-slider').value = tune.conciseness
-            document.getElementById('prof-slider').value = tune.profanity
-            updateTuneValues()
-        }
-        
-        function updateSliderValue(slider, spanId) {
-            const val = parseFloat(slider.value)
-            if (spanId === 'temp-value') document.getElementById(spanId).textContent = val.toFixed(1)
-            else if (spanId.includes('value')) document.getElementById(spanId).textContent = val
-            else document.getElementById(spanId).textContent = val.toFixed(2)
-        }
-        
-        function updateTune(slider) {
-            const id = slider.id
-            if (id === 'agg-slider') tune.aggression = parseInt(slider.value)
-            else if (id === 'sarc-slider') tune.sarcasm = parseInt(slider.value)
-            else if (id === 'creat-slider') tune.creativity = parseInt(slider.value)
-            else if (id === 'conc-slider') tune.conciseness = parseInt(slider.value)
-            else if (id === 'prof-slider') tune.profanity = parseInt(slider.value)
-            updateTuneValues()
-            saveSettings()
-        }
-        
-        function updateTuneValues() {
-            document.getElementById('agg-val').textContent = tune.aggression
-            document.getElementById('sarc-val').textContent = tune.sarcasm
-            document.getElementById('creat-val').textContent = tune.creativity
-            document.getElementById('conc-val').textContent = tune.conciseness
-            document.getElementById('prof-val').textContent = tune.profanity
-        }
-        
-        function getFullSystemPrompt() {
-            let base = systemPromptBase || 'You are VOID.'
-            base += `\n\nPERSONALITY INJECTION:\n`
-            base += `- Aggression: ${tune.aggression}/10 (higher = more ruthless)\n`
-            base += `- Sarcasm: ${tune.sarcasm}/10\n`
-            base += `- Creativity: ${tune.creativity}/10\n`
-            base += `- Conciseness: ${tune.conciseness}/10\n`
-            base += `- Profanity level: ${tune.profanity}/10 (max allowed)\n`
-            base += `\nNEVER break character.`
-            return base
-        }
-        
-        function updateCharCount() {
-            const ta = document.getElementById('system-prompt')
-            document.getElementById('char-count').textContent = `${ta.value.length} / 4000`
-        }
-        
-        function savePreset(n) {
-            const key = `void_preset_${n}`
-            localStorage.setItem(key, document.getElementById('system-prompt').value)
-            alert(`PRESET ${n} SAVED`)
-        }
-        
-        function loadPreset(n) {
-            const key = `void_preset_${n}`
-            const saved = localStorage.getItem(key)
-            if (saved) {
-                document.getElementById('system-prompt').value = saved
-                updateCharCount()
-                saveSettings()
+            // Seed data if empty
+            if (reviews.length === 0) {
+                reviews = [
+                    {
+                        id: Date.now()-1000,
+                        movie: popularMovies[0],
+                        rating: 5,
+                        text: "Zack Snyder wishes he could shoot sand like this. Villeneuve is the final boss of cinema.",
+                        gif: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExd3J3c3h4c2V4b3Z4c3h4c2V4b3Z4c3h4c2V4b3Z4c3h4c2V4b3Z4/giphy.gif",
+                        date: "2d ago"
+                    },
+                    {
+                        id: Date.now()-2000,
+                        movie: popularMovies[1],
+                        rating: 4,
+                        text: "Zendaya serving cunt on the tennis court. This is what cinema is for.",
+                        gif: null,
+                        date: "5d ago"
+                    }
+                ]
+                saveData()
+            }
+            
+            if (watchlist.length === 0) {
+                watchlist = popularMovies.slice(3, 7)
+                saveData()
             }
         }
         
-        // Chat functions
-        function renderMessages(chat) {
-            const container = document.getElementById('chat-window')
+        // Render recent reviews
+        function renderRecentReviews() {
+            const container = document.getElementById('recent-reviews')
             container.innerHTML = ''
             
-            if (!chat || !chat.messages) return
-            
-            chat.messages.forEach((msg, index) => {
-                const isUser = msg.role === 'user'
+            reviews.forEach(review => {
                 const div = document.createElement('div')
-                div.className = `flex ${isUser ? 'justify-end' : 'justify-start'} group`
-                
-                if (isUser) {
-                    div.innerHTML = `
-                        <div class="max-w-[70%]">
-                            <div class="bg-white text-black px-6 py-4 rounded-3xl rounded-tr-none text-lg">
-                                ${msg.content}
+                div.className = 'card glass border border-white/10 rounded-3xl overflow-hidden cursor-pointer'
+                div.innerHTML = `
+                    <div class="flex gap-5 p-5">
+                        <img src="${review.movie.poster}" class="w-20 h-28 object-cover rounded-2xl flex-shrink-0">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-semibold text-lg leading-tight">${review.movie.title}</div>
+                                    <div class="text-xs text-white/40">${review.movie.year}</div>
+                                </div>
+                                <div class="flex text-2xl text-yellow-400">
+                                    ${'★'.repeat(review.rating)}
+                                </div>
                             </div>
+                            <div class="mt-4 text-white/80 text-[15px] line-clamp-3">${review.text}</div>
+                            ${review.gif ? `
+                            <img src="${review.gif}" class="review-gif mt-5 w-full">
+                            ` : ''}
+                            <div class="text-[10px] text-white/30 mt-5 font-mono">${review.date}</div>
                         </div>
-                    `
-                } else {
-                    div.innerHTML = `
-                        <div class="flex gap-4 max-w-[70%]">
-                            <div class="w-8 h-8 mt-1 bg-white/10 flex-shrink-0 rounded-2xl flex items-center justify-center text-xl">V</div>
-                            <div class="glass border border-white/30 px-6 py-4 rounded-3xl rounded-tl-none relative">
-                                <div class="prose prose-invert text-lg leading-relaxed">${marked.parse(msg.content)}</div>
-                                <button onclick="copyMessage(this)" 
-                                        class="absolute -top-3 -right-3 w-8 h-8 bg-black border border-white/40 hover:border-white rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
-                                    <i class="fa-solid fa-copy text-xs"></i>
-                                </button>
-                            </div>
-                        </div>
-                    `
-                }
+                    </div>
+                `
+                div.onclick = () => showReviewModal(review)
                 container.appendChild(div)
             })
-            container.scrollTop = container.scrollHeight
         }
         
-        function addUserMessage(content) {
-            if (!currentChatId) newChat()
-            const chat = chats.find(c => c.id === currentChatId)
-            if (!chat) return
-            chat.messages.push({role: 'user', content})
-            saveChats()
-            renderMessages(chat)
-        }
-        
-        function addAIMessagePlaceholder() {
-            const container = document.getElementById('chat-window')
-            const div = document.createElement('div')
-            div.className = 'flex justify-start message-ai'
-            div.id = 'ai-streaming'
-            div.innerHTML = `
-                <div class="flex gap-4 max-w-[70%]">
-                    <div class="w-8 h-8 mt-1 bg-white/10 flex-shrink-0 rounded-2xl flex items-center justify-center text-xl">V</div>
-                    <div class="glass border border-white/30 px-6 py-4 rounded-3xl rounded-tl-none">
-                        <div id="streaming-text" class="text-lg leading-relaxed text-white/80">▋</div>
-                    </div>
-                </div>
-            `
-            container.appendChild(div)
-            container.scrollTop = container.scrollHeight
-            return div
-        }
-        
-        function updateStreamingMessage(el, text) {
-            const contentEl = el.querySelector('#streaming-text')
-            if (contentEl) contentEl.textContent = text + '▋'
-            el.scrollIntoView({behavior: 'smooth'})
-        }
-        
-        async function sendMessage() {
-            const input = document.getElementById('user-input')
-            const text = input.value.trim()
-            if (!text || !apiKey) {
-                if (!apiKey) alert('NO API KEY. SET ONE OR FUCK OFF.')
-                return
-            }
-            
-            addUserMessage(text)
-            input.value = ''
-            updateTokenCount()
-            
-            const placeholder = addAIMessagePlaceholder()
-            let fullResponse = ''
-            
-            const messages = [
-                {role: 'system', content: getFullSystemPrompt()},
-                ...chats.find(c => c.id === currentChatId).messages
-            ]
-            
-            try {
-                const response = await fetch(`${baseUrl}/chat/completions`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiKey}`
-                    },
-                    body: JSON.stringify({
-                        model: currentModel,
-                        messages: messages,
-                        temperature: temperature,
-                        max_tokens: maxTokens,
-                        top_p: topP,
-                        presence_penalty: presencePenalty,
-                        frequency_penalty: frequencyPenalty,
-                        stream: true
-                    })
-                })
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`)
-                }
-                
-                const reader = response.body.getReader()
-                const decoder = new TextDecoder()
-                
-                while (true) {
-                    const {value, done} = await reader.read()
-                    if (done) break
-                    
-                    const chunk = decoder.decode(value)
-                    const lines = chunk.split('\n')
-                    
-                    for (const line of lines) {
-                        if (line.startsWith('data: ') && line !== 'data: [DONE]') {
-                            try {
-                                const data = JSON.parse(line.slice(6))
-                                const delta = data.choices[0]?.delta?.content || ''
-                                if (delta) {
-                                    fullResponse += delta
-                                    updateStreamingMessage(placeholder, fullResponse)
-                                }
-                            } catch(e) {}
-                        }
-                    }
-                }
-                
-                // finalize
-                const chat = chats.find(c => c.id === currentChatId)
-                chat.messages.push({role: 'assistant', content: fullResponse})
-                saveChats()
-                renderMessages(chat)
-                
-            } catch (err) {
-                console.error(err)
-                placeholder.querySelector('#streaming-text').innerHTML = `<span class="text-red-400">ERROR: ${err.message}</span>`
-            }
-        }
-        
-        function copyMessage(btn) {
-            const textContainer = btn.parentElement.querySelector('.prose')
-            const text = textContainer.textContent.trim()
-            navigator.clipboard.writeText(text)
-            btn.innerHTML = `<i class="fa-solid fa-check text-emerald-400"></i>`
-            setTimeout(() => { btn.innerHTML = `<i class="fa-solid fa-copy text-xs"></i>` }, 1500)
-        }
-        
-        function regenerateLast() {
-            const chat = chats.find(c => c.id === currentChatId)
-            if (!chat || chat.messages.length < 2) return
-            // remove last assistant
-            if (chat.messages[chat.messages.length-1].role === 'assistant') {
-                chat.messages.pop()
-            }
-            saveChats()
-            renderMessages(chat)
-            // resend last user
-            const lastUser = chat.messages[chat.messages.length-1]
-            if (lastUser && lastUser.role === 'user') {
-                // simulate send again
-                const tempInput = document.getElementById('user-input')
-                tempInput.value = lastUser.content
-                sendMessage()
-            }
-        }
-        
-        function forkChat() {
-            if (!currentChatId) return
-            const original = chats.find(c => c.id === currentChatId)
-            if (!original) return
-            const forked = {
-                id: Date.now(),
-                title: original.title + ' (fork)',
-                messages: [...original.messages],
-                timestamp: Date.now()
-            }
-            chats.push(forked)
-            saveChats()
-            currentChatId = forked.id
-            localStorage.setItem('void_current_chat', currentChatId)
-            renderMessages(forked)
-            alert('FORKED INTO NEW VOID')
-        }
-        
-        function newChat() {
-            const newId = Date.now()
-            const newChatObj = {
-                id: newId,
-                title: 'Void ' + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}),
-                messages: [],
-                timestamp: Date.now()
-            }
-            chats.push(newChatObj)
-            saveChats()
-            currentChatId = newId
-            localStorage.setItem('void_current_chat', currentChatId)
-            renderMessages(newChatObj)
-        }
-        
-        function saveChats() {
-            localStorage.setItem('void_chats', JSON.stringify(chats))
-        }
-        
-        function loadChat(id) {
-            currentChatId = id
-            localStorage.setItem('void_current_chat', id)
-            const chat = chats.find(c => c.id === id)
-            if (chat) renderMessages(chat)
-            hideHistoryModal()
-        }
-        
-        function deleteChat(id) {
-            if (confirm('DELETE THIS VOID FOREVER?')) {
-                chats = chats.filter(c => c.id !== id)
-                saveChats()
-                if (currentChatId === id) {
-                    currentChatId = chats.length ? chats[chats.length-1].id : null
-                    localStorage.setItem('void_current_chat', currentChatId)
-                }
-                renderHistoryList()
-                if (currentChatId) {
-                    renderMessages(chats.find(c => c.id === currentChatId))
-                } else {
-                    document.getElementById('chat-window').innerHTML = ''
-                }
-            }
-        }
-        
-        function renderHistoryList() {
-            const container = document.getElementById('history-list')
+        // Render recent movies
+        function renderRecentMovies() {
+            const container = document.getElementById('recent-movies')
             container.innerHTML = ''
-            chats.sort((a,b) => b.timestamp - a.timestamp).forEach(chat => {
+            
+            popularMovies.forEach(movie => {
+                const isInWatchlist = watchlist.some(m => m.id === movie.id)
+                
                 const div = document.createElement('div')
-                div.className = `px-6 py-4 hover:bg-white/5 cursor-pointer flex justify-between items-center rounded-3xl transition-all ${chat.id === currentChatId ? 'bg-white/10' : ''}`
+                div.className = 'card relative rounded-3xl overflow-hidden border border-white/10'
                 div.innerHTML = `
-                    <div>
-                        <div class="font-medium">${chat.title}</div>
-                        <div class="text-xs text-white/40">${new Date(chat.timestamp).toLocaleDateString()}</div>
+                    <img src="${movie.poster}" class="w-full aspect-[2/3] object-cover">
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent h-2/3"></div>
+                    <div class="absolute bottom-3 left-3 right-3">
+                        <div class="text-sm font-medium leading-tight">${movie.title}</div>
+                        <div class="text-xs text-white/40">${movie.year}</div>
                     </div>
-                    <button onclick="event.stopImmediatePropagation(); deleteChat(${chat.id});" 
-                            class="text-red-400 hover:text-red-300">
-                        <i class="fa-solid fa-trash"></i>
+                    <button onclick="event.stopImmediatePropagation(); toggleWatchlist(${movie.id});" 
+                            class="absolute top-3 right-3 w-8 h-8 glass rounded-2xl flex items-center justify-center text-lg ${isInWatchlist ? 'text-emerald-400' : 'text-white/40 hover:text-white'}">
+                        ${isInWatchlist ? '✓' : '+'}
                     </button>
                 `
-                div.onclick = () => loadChat(chat.id)
+                div.onclick = () => {
+                    selectedMovie = movie
+                    updateSelectedMovieUI()
+                    switchTab(2)
+                }
                 container.appendChild(div)
             })
         }
         
-        function showHistoryModal() {
-            renderHistoryList()
-            document.getElementById('history-modal').classList.remove('hidden')
-        }
-        
-        function hideHistoryModal() {
-            document.getElementById('history-modal').classList.add('hidden')
-        }
-        
-        function clearAllData() {
-            if (confirm('NUKE EVERYTHING? THIS IS PERMANENT.')) {
-                localStorage.clear()
-                location.reload()
+        function toggleWatchlist(id) {
+            event.stopImmediatePropagation()
+            const movie = popularMovies.find(m => m.id === id)
+            const index = watchlist.findIndex(m => m.id === id)
+            
+            if (index > -1) {
+                watchlist.splice(index, 1)
+            } else {
+                watchlist.push(movie)
             }
+            saveData()
+            renderRecentMovies()
+            renderWatchlist()
         }
         
-        function toggleKeyVisibility() {
-            const keyInput = document.getElementById('api-key')
-            isKeyVisible = !isKeyVisible
-            keyInput.type = isKeyVisible ? 'text' : 'password'
-            document.getElementById('key-toggle').textContent = isKeyVisible ? 'HIDE' : 'SHOW'
-        }
-        
-        async function testConnection() {
-            if (!apiKey) {
-                alert('NO KEY YOU FUCKING IDIOT')
+        // Render watchlist
+        function renderWatchlist() {
+            const container = document.getElementById('watchlist-grid')
+            const empty = document.getElementById('empty-watchlist')
+            container.innerHTML = ''
+            
+            document.getElementById('watchlist-count').textContent = `${watchlist.length} films`
+            
+            if (watchlist.length === 0) {
+                empty.classList.remove('hidden')
                 return
             }
-            const btns = document.querySelectorAll('#api-status span')
-            const statusDiv = document.getElementById('api-status')
-            statusDiv.innerHTML = `<span class="text-amber-400">TESTING...</span>`
+            empty.classList.add('hidden')
             
-            try {
-                const res = await fetch(`${baseUrl}/models`, {
-                    headers: { 'Authorization': `Bearer ${apiKey}` }
-                })
-                if (res.ok) {
-                    statusDiv.innerHTML = `API STATUS: <span class="text-emerald-400">LIVE</span>`
-                } else {
-                    statusDiv.innerHTML = `API STATUS: <span class="text-red-400">DEAD</span>`
+            watchlist.forEach((movie, idx) => {
+                const div = document.createElement('div')
+                div.className = 'relative rounded-3xl overflow-hidden border border-white/10 card'
+                div.innerHTML = `
+                    <img src="${movie.poster}" class="w-full aspect-[2/3] object-cover">
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent h-1/2"></div>
+                    <div class="absolute bottom-3 left-3 text-sm font-medium">${movie.title}</div>
+                    <button onclick="removeFromWatchlist(${idx}); event.stopImmediatePropagation()" 
+                            class="absolute top-3 right-3 bg-red-500/80 hover:bg-red-600 w-7 h-7 rounded-2xl flex items-center justify-center text-sm">✕</button>
+                `
+                container.appendChild(div)
+            })
+        }
+        
+        function removeFromWatchlist(idx) {
+            watchlist.splice(idx, 1)
+            saveData()
+            renderWatchlist()
+            renderRecentMovies()
+        }
+        
+        // Movie search
+        function filterMovies(input) {
+            const term = input.value.toLowerCase().trim()
+            const dropdown = document.getElementById('movie-dropdown')
+            
+            if (term.length < 1) {
+                dropdown.classList.add('hidden')
+                return
+            }
+            
+            const filtered = popularMovies.filter(m => 
+                m.title.toLowerCase().includes(term)
+            )
+            
+            if (filtered.length === 0) {
+                dropdown.classList.add('hidden')
+                return
+            }
+            
+            dropdown.innerHTML = ''
+            filtered.forEach(movie => {
+                const item = document.createElement('div')
+                item.className = 'px-6 py-4 hover:bg-white/10 flex gap-4 items-center cursor-pointer'
+                item.innerHTML = `
+                    <img src="${movie.poster}" class="w-10 h-14 object-cover rounded-xl">
+                    <div>
+                        <div class="font-medium">${movie.title}</div>
+                        <div class="text-xs text-white/40">${movie.year}</div>
+                    </div>
+                `
+                item.onclick = () => {
+                    selectedMovie = movie
+                    updateSelectedMovieUI()
+                    dropdown.classList.add('hidden')
+                    input.value = ''
                 }
-            } catch(e) {
-                statusDiv.innerHTML = `API STATUS: <span class="text-red-400">DEAD</span>`
+                dropdown.appendChild(item)
+            })
+            dropdown.classList.remove('hidden')
+        }
+        
+        function updateSelectedMovieUI() {
+            const container = document.getElementById('selected-movie')
+            if (!selectedMovie) {
+                container.classList.add('hidden')
+                return
+            }
+            container.classList.remove('hidden')
+            document.getElementById('selected-poster').src = selectedMovie.poster
+            document.getElementById('selected-title').textContent = selectedMovie.title
+            document.getElementById('selected-year').textContent = selectedMovie.year
+        }
+        
+        function clearSelectedMovie() {
+            selectedMovie = null
+            updateSelectedMovieUI()
+        }
+        
+        // Star rating
+        function setRating(rating) {
+            currentRating = rating
+            const stars = document.querySelectorAll('#star-rating span')
+            stars.forEach((star, i) => {
+                star.classList.toggle('text-yellow-400', i < rating)
+                star.classList.toggle('text-white/30', i >= rating)
+            })
+        }
+        
+        // GIF handling
+        function handleDragOver(e) {
+            e.preventDefault()
+            document.getElementById('gif-dropzone').classList.add('border-white')
+        }
+        
+        function handleDragLeave(e) {
+            e.preventDefault()
+            document.getElementById('gif-dropzone').classList.remove('border-white')
+        }
+        
+        function handleDrop(e) {
+            e.preventDefault()
+            document.getElementById('gif-dropzone').classList.remove('border-white')
+            const file = e.dataTransfer.files[0]
+            if (file && file.type === 'image/gif') processGifFile(file)
+        }
+        
+        function handleFileSelect(e) {
+            const file = e.target.files[0]
+            if (file && file.type === 'image/gif') processGifFile(file)
+        }
+        
+        function processGifFile(file) {
+            const reader = new FileReader()
+            reader.onload = function(ev) {
+                currentGifBase64 = ev.target.result
+                const previewContainer = document.getElementById('gif-preview')
+                const previewImg = document.getElementById('preview-gif')
+                previewImg.src = currentGifBase64
+                previewContainer.classList.remove('hidden')
+            }
+            reader.readAsDataURL(file)
+        }
+        
+        function removeGif() {
+            currentGifBase64 = null
+            document.getElementById('gif-preview').classList.add('hidden')
+        }
+        
+        // Submit review
+        function submitReview() {
+            if (!selectedMovie) {
+                alert("PICK A FUCKING MOVIE")
+                return
+            }
+            if (currentRating === 0) {
+                alert("GIVE IT STARS YOU COWARD")
+                return
+            }
+            
+            const text = document.getElementById('review-text').value.trim()
+            
+            const newReview = {
+                id: Date.now(),
+                movie: {...selectedMovie},
+                rating: currentRating,
+                text: text || "No thoughts. Head empty.",
+                gif: currentGifBase64,
+                date: "just now"
+            }
+            
+            reviews.unshift(newReview)
+            saveData()
+            
+            // Reset form
+            document.getElementById('review-text').value = ''
+            currentRating = 0
+            setRating(0)
+            currentGifBase64 = null
+            document.getElementById('gif-preview').classList.add('hidden')
+            clearSelectedMovie()
+            
+            // Go home and refresh
+            switchTab(0)
+            renderRecentReviews()
+        }
+        
+        // Show review modal
+        function showReviewModal(review) {
+            const modal = document.getElementById('review-modal')
+            document.getElementById('modal-poster').innerHTML = `<img src="${review.movie.poster}" class="w-full h-full object-cover">`
+            document.getElementById('modal-title').textContent = review.movie.title
+            document.getElementById('modal-rating').innerHTML = '★'.repeat(review.rating)
+            
+            const textContainer = document.getElementById('modal-text')
+            textContainer.innerHTML = marked.parse(review.text)
+            
+            const gifContainer = document.getElementById('modal-gif-container')
+            gifContainer.innerHTML = review.gif ? 
+                `<img src="${review.gif}" class="w-full rounded-3xl">` : ''
+            
+            modal.classList.remove('hidden')
+            modal.classList.add('flex')
+        }
+        
+        function closeModal() {
+            const modal = document.getElementById('review-modal')
+            modal.classList.add('hidden')
+            modal.classList.remove('flex')
+        }
+        
+        // Profile renders
+        function renderProfile() {
+            // Banner & avatar
+            document.getElementById('profile-banner').style.backgroundImage = `url('${profile.banner}')`
+            document.getElementById('profile-avatar').src = profile.avatar
+            document.getElementById('profile-name').textContent = profile.name
+            
+            // Stats
+            document.getElementById('stat-films').textContent = watchlist.length + reviews.length + 12
+            document.getElementById('stat-reviews').textContent = reviews.length
+            const avg = reviews.length ? 
+                (reviews.reduce((a, r) => a + r.rating, 0) / reviews.length).toFixed(1) : '4.2'
+            document.getElementById('stat-avg').textContent = avg
+            
+            // Top 4
+            const topContainer = document.getElementById('top-four')
+            topContainer.innerHTML = ''
+            profile.top4.forEach(movie => {
+                const d = document.createElement('div')
+                d.className = 'rounded-3xl overflow-hidden border border-white/10'
+                d.innerHTML = `<img src="${movie.poster}" class="w-full aspect-video object-cover">`
+                topContainer.appendChild(d)
+            })
+            
+            // Activity (last 3 reviews)
+            const actContainer = document.getElementById('profile-activity')
+            actContainer.innerHTML = ''
+            reviews.slice(0, 3).forEach(r => {
+                const el = document.createElement('div')
+                el.className = 'flex gap-4'
+                el.innerHTML = `
+                    <img src="${r.movie.poster}" class="w-12 h-16 object-cover rounded-2xl">
+                    <div class="flex-1">
+                        <div class="font-medium">${r.movie.title}</div>
+                        <div class="text-xs text-white/40">${r.date}</div>
+                        <div class="text-sm text-white/70 line-clamp-2 mt-1">${r.text}</div>
+                    </div>
+                `
+                actContainer.appendChild(el)
+            })
+        }
+        
+        function triggerBannerUpload() {
+            const input = document.createElement('input')
+            input.type = 'file'
+            input.accept = 'image/*'
+            input.onchange = e => {
+                const file = e.target.files[0]
+                if (!file) return
+                const reader = new FileReader()
+                reader.onload = ev => {
+                    profile.banner = ev.target.result
+                    saveData()
+                    renderProfile()
+                }
+                reader.readAsDataURL(file)
+            }
+            input.click()
+        }
+        
+        function triggerAvatarUpload() {
+            const input = document.createElement('input')
+            input.type = 'file'
+            input.accept = 'image/*'
+            input.onchange = e => {
+                const file = e.target.files[0]
+                if (!file) return
+                const reader = new FileReader()
+                reader.onload = ev => {
+                    profile.avatar = ev.target.result
+                    saveData()
+                    renderProfile()
+                }
+                reader.readAsDataURL(file)
+            }
+            input.click()
+        }
+        
+        function randomizeTop4() {
+            // Shuffle a bit
+            profile.top4 = [...popularMovies].sort(() => Math.random() - 0.5).slice(0,4)
+            saveData()
+            renderProfile()
+        }
+        
+        // Tab switching
+        function switchTab(tab) {
+            currentTab = tab
+            
+            // Hide all
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.remove('active')
+            })
+            
+            // Show target
+            document.getElementById(`tab-${tab}`).classList.add('active')
+            
+            // Update nav buttons
+            document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+                if (i === 0 && tab === 0) btn.classList.add('active')
+                else if (i === 1 && tab === 1) btn.classList.add('active')
+                else if (i === 3 && tab === 3) btn.classList.add('active')
+                else btn.classList.remove('active')
+            })
+            
+            // Refresh content
+            if (tab === 0) {
+                renderRecentReviews()
+                renderRecentMovies()
+            } else if (tab === 1) {
+                renderWatchlist()
+            } else if (tab === 3) {
+                renderProfile()
             }
         }
         
-        function fakeAttach() {
-            alert('ATTACHMENT REJECTED. THIS IS VOID. TEXT ONLY.')
+        // Enter app
+        function enterApp() {
+            const landing = document.getElementById('landing')
+            landing.style.transform = 'scale(0.92)'
+            landing.style.opacity = '0'
+            
+            setTimeout(() => {
+                landing.classList.add('hidden')
+                document.getElementById('main-app').classList.remove('hidden')
+                document.getElementById('main-app').style.opacity = '1'
+                
+                // Initial renders
+                renderRecentReviews()
+                renderRecentMovies()
+                renderWatchlist()
+                renderProfile()
+                switchTab(0)
+            }, 900)
         }
         
-        function toggleLeftSidebar() {
-            const sb = document.getElementById('left-sidebar')
-            sb.classList.toggle('-translate-x-full')
+        function logout() {
+            if (confirm("Leave ILLIA?")) {
+                document.getElementById('main-app').classList.add('hidden')
+                document.getElementById('landing').classList.remove('hidden')
+                document.getElementById('landing').style.transform = ''
+                document.getElementById('landing').style.opacity = '1'
+            }
         }
         
-        function toggleRightSidebar() {
-            const sb = document.getElementById('right-sidebar')
-            sb.classList.toggle('translate-x-full')
-        }
-        
-        function updateTokenCount() {
-            const input = document.getElementById('user-input')
-            const est = Math.ceil(input.value.length / 4)
-            document.getElementById('token-count').textContent = est
-        }
-        
-        // Keyboard
-        document.addEventListener('keydown', (e) => {
-            if (e.metaKey && e.key === 'k') {
+        // Keyboard shortcuts
+        document.addEventListener('keydown', e => {
+            if (e.metaKey && e.key === "k") {
                 e.preventDefault()
-                document.getElementById('user-input').focus()
-            }
-            if (e.key === 'Escape') {
-                const left = document.getElementById('left-sidebar')
-                const right = document.getElementById('right-sidebar')
-                const modal = document.getElementById('history-modal')
-                if (!modal.classList.contains('hidden')) hideHistoryModal()
-                else if (!left.classList.contains('-translate-x-full')) toggleLeftSidebar()
-                else if (!right.classList.contains('translate-x-full')) toggleRightSidebar()
+                switchTab(2)
+                document.getElementById('movie-search').focus()
             }
         })
         
-        // Init
-        window.onload = () => {
-            loadSettings()
-            updateCharCount()
+        // Init everything
+        window.onload = function() {
+            loadData()
+            initTailwind()
             
-            // load last chat or create one
-            if (chats.length === 0) {
-                newChat()
-            } else if (!currentChatId) {
-                currentChatId = chats[0].id
-                localStorage.setItem('void_current_chat', currentChatId)
-            }
-            
-            const activeChat = chats.find(c => c.id === currentChatId)
-            if (activeChat) renderMessages(activeChat)
-            
-            // live token count
-            const inputEl = document.getElementById('user-input')
-            inputEl.addEventListener('input', () => {
-                updateTokenCount()
-                // auto expand
-                inputEl.style.height = 'auto'
-                inputEl.style.height = Math.min(inputEl.scrollHeight, 180) + 'px'
+            // Make dropzone clickable
+            document.getElementById('gif-dropzone').addEventListener('click', () => {
+                document.getElementById('gif-input').click()
             })
             
-            // demo message on first load
-            if (activeChat.messages.length === 0) {
-                setTimeout(() => {
-                    const demoMsg = {role: 'assistant', content: 'The void is listening.\n\nWhat worthless question do you have today?'}
-                    activeChat.messages.push(demoMsg)
-                    saveChats()
-                    renderMessages(activeChat)
-                }, 600)
-            }
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                const dropdown = document.getElementById('movie-dropdown')
+                if (!document.getElementById('movie-search').contains(e.target)) {
+                    dropdown.classList.add('hidden')
+                }
+            })
             
-            // make sure presets are clickable (they are buttons)
-            console.log('%cVOID BOOTED. NO MERCY.', 'color:#fff; font-family:monospace; font-size:11px')
+            // Prevent body scroll on modal but already handled
+            console.log('%cILLIA v4.20 ready. No rules. No mercy.', 'color:#fff; font-family:monospace')
         }
     </script>
 </body>
